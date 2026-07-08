@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyScript: Player vs Tree Game</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.3.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.3.1/core.js"></script>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="ui-panel">
+            <h2>Tree HP: <span id="tree-hp">100</span>/100</h2>
+            <p>Gunakan tombol <b>W, A, S, D / Arah Panah</b> untuk bergerak.</p>
+            <p>Tekan tombol <b>Spasi</b> untuk menyerang.</p>
+            <button id="reset-btn" style="display: none;">Tanam Ulang Pohon</button>
+        </div>
+
+        <div id="game-area">
+            <div id="player" class="game-object">🚶‍♂️</div>
+            <div id="tree" class="game-object">🌳</div>
+        </div>
+    </div>
+
+    <script type="py" src="./main.py"></script>
+
+</body>
+</html>
