@@ -3,29 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyScript: Player vs Tree Game</title>
-    
+    <title>PyScript: Modern Survival</title>
     <link rel="stylesheet" href="style.css">
-    
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.3.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.3.1/core.js"></script>
 </head>
 <body>
 
-    <div id="game-container">
-        <div id="ui-panel">
-            <h2>Tree HP: <span id="tree-hp">100</span>/100</h2>
-            <p>Gunakan tombol <b>W, A, S, D / Arah Panah</b> untuk bergerak.</p>
-            <p>Tekan tombol <b>Spasi</b> untuk menyerang.</p>
-            <button id="reset-btn" style="display: none;">Tanam Ulang Pohon</button>
+    <div id="game-area">
+        
+        <div id="player" class="game-object" draggable="false">
+            <div class="floating-ui">
+                <div class="input-logo">W A S D / DRAG</div>
+            </div>
+            <svg id="player-idle" class="modern-svg" viewBox="0 0 24 24" draggable="false">
+                <circle cx="12" cy="6" r="4"></circle>
+                <path d="M12 10 v7 M8 22 l4-5 l4 5 M8 13 h8"></path>
+            </svg>
+            <svg id="player-attack" class="modern-svg hidden" viewBox="0 0 24 24" draggable="false">
+                <circle cx="12" cy="6" r="4"></circle>
+                <path d="M12 10 v7 M8 22 l4-5 l4 5 M12 12 l8 -4"></path>
+            </svg>
         </div>
 
-        <div id="game-area">
-            <div id="player" class="game-object">🚶‍♂️</div>
-            <div id="tree" class="game-object">🌳</div>
+        <div id="tree" class="game-object" draggable="false">
+            <div class="floating-ui" style="top: -90px;"> <div id="tree-hp-bar"><div id="tree-hp-fill" class="hp-fill"></div></div>
+                <div id="tree-event-hurt" class="event-logo hidden">-35</div>
+                <div id="tree-event-death" class="event-logo hidden">DEAD</div>
+            </div>
+            <svg id="tree-idle" class="modern-svg large-svg stroke-green" viewBox="0 0 24 24" draggable="false">
+                <path d="M12 22 v-8"></path>
+                <path d="M12 14 C 5 14, 5 4, 12 4 C 19 4, 19 14, 12 14 Z"></path>
+            </svg>
+            <svg id="tree-hurt" class="modern-svg large-svg stroke-red hidden" viewBox="0 0 24 24" draggable="false">
+                <path d="M12 22 l-2 -8"></path>
+                <path d="M10 14 C 3 14, 3 4, 10 4 C 17 4, 17 14, 10 14 Z"></path>
+            </svg>
+            <svg id="tree-death" class="modern-svg large-svg stroke-gray hidden" viewBox="0 0 24 24" draggable="false">
+                <path d="M10 22 v-5 m4 5 v-3 M8 17 h8"></path>
+            </svg>
         </div>
+
+        <div id="grass" class="game-object" draggable="false">
+            <div class="floating-ui">
+                <div id="grass-hp-bar"><div id="grass-hp-fill" class="hp-fill"></div></div>
+                <div id="grass-event-hurt" class="event-logo hidden">-35</div>
+                <div id="grass-event-death" class="event-logo hidden">DEAD</div>
+            </div>
+            <svg id="grass-idle" class="modern-svg stroke-lightgreen" viewBox="0 0 24 24" draggable="false">
+                <path d="M8 22 v-10 M12 22 v-14 M16 22 v-10"></path>
+            </svg>
+            <svg id="grass-hurt" class="modern-svg stroke-red hidden" viewBox="0 0 24 24" draggable="false">
+                <path d="M8 22 Q12 15 6 10 M12 22 Q16 15 10 8 M16 22 Q20 15 14 10"></path>
+            </svg>
+            <svg id="grass-death" class="modern-svg stroke-gray hidden" viewBox="0 0 24 24" draggable="false">
+                <path d="M7 22 v-3 M12 22 v-2 M17 22 v-3 M5 19 h14"></path>
+            </svg>
+        </div>
+
+        <div id="water" class="game-object" draggable="false">
+            <div class="floating-ui">
+                <div id="splash-fx" class="event-logo hidden" style="color: #60a5fa; text-shadow: 0 0 10px #60a5fa;">💧 SPLASH!</div>
+            </div>
+            <svg class="modern-svg stroke-blue" viewBox="0 0 24 24" draggable="false">
+                <ellipse cx="12" cy="18" rx="8" ry="3"></ellipse>
+                <ellipse cx="12" cy="18" rx="5" ry="1.5"></ellipse>
+            </svg>
+        </div>
+
     </div>
 
+    <button id="reset-btn" class="global-btn hidden">↻ REVIVE ALL</button>
     <script type="py" src="./main.py"></script>
 
 </body>
