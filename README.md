@@ -1,3 +1,1 @@
 # survival
-
-id: brach kedua
