@@ -1,0 +1,109 @@
+<div id="player-assets">
+    <div class="floating-ui">
+        <div class="input-logo">W A S D / SPACE</div>
+    </div>
+    <svg id="player-idle" class="modern-svg stroke-yellow" viewBox="0 0 24 24" draggable="false">
+        <path d="M5 15 C5 9, 19 9, 19 15 C19 19, 5 19, 5 15 Z"></path>
+        <circle cx="12" cy="11" r="4"></circle>
+    </svg>
+    <svg id="player-attack" class="modern-svg stroke-yellow hidden" viewBox="0 0 24 24" draggable="false">
+        <path d="M6 13 C6 7, 20 8, 18 14 C17 18, 5 18, 6 13 Z"></path>
+        <circle cx="13" cy="10" r="4"></circle>
+        <path d="M22 2 C18 0, 12 0, 6 4" stroke-dasharray="4 2"></path>
+        <path d="M18 9 L22 2"></path>
+    </svg>
+</div>
+
+<template id="template-tree">
+    <div class="game-object dynamic-object" draggable="false">
+        <div class="floating-ui" style="top: -90px;"> 
+            <div class="hp-bar"><div class="hp-fill"></div></div>
+            <div class="event-logo hurt-fx hidden">-35</div>
+            <div class="event-logo death-fx hidden">DEAD</div>
+        </div>
+        <svg class="modern-svg large-svg stroke-green svg-idle" viewBox="0 0 24 24" draggable="false">
+            <path d="M11 22 L11 14 M13 22 L13 14 M11 17 L8 14 M13 16 L16 13"></path>
+            <path d="M12 2 C17 2, 21 5, 21 10 C21 12, 20 14, 17 15 C16 17, 13 18, 12 18 C11 18, 8 17, 7 15 C4 14, 3 12, 3 10 C3 5, 7 2, 12 2 Z"></path>
+            <path d="M8 8 C10 7, 12 7, 13 8 M14 12 C15 13, 17 13, 18 12 M7 12 C8 13, 9 13, 10 12"></path>
+        </svg>
+        <svg class="modern-svg large-svg stroke-red svg-hurt hidden" viewBox="0 0 24 24" draggable="false">
+            <path d="M11 22 L10 14 M13 22 L14 14 M11 17 L7 15"></path>
+            <path d="M12 2 C15 2, 17 3, 19 5 M20 8 C21 10, 21 12, 19 14 M16 16 C14 17, 13 18, 12 18 C10 18, 9 17, 8 15 M5 13 C3 11, 3 8, 5 6 M7 3 C9 2, 10 2, 12 2"></path>
+            <path d="M15 6 L17 8 M6 9 L8 11 M13 15 L15 17"></path>
+        </svg>
+        <svg class="modern-svg large-svg stroke-gray svg-death hidden" viewBox="0 0 24 24" draggable="false">
+            <path d="M9 22 L9 17 C11 16, 13 16, 15 17 L15 22"></path>
+            <path d="M9 17 L10 14 L12 16 L14 13 L15 17"></path>
+            <path d="M11 19 L11 22 M13 20 L13 22"></path>
+        </svg>
+    </div>
+</template>
+
+<template id="template-grass">
+    <div class="game-object dynamic-object" draggable="false">
+        <div class="floating-ui">
+            <div class="hp-bar"><div class="hp-fill"></div></div>
+            <div class="event-logo hurt-fx hidden">-35</div>
+            <div class="event-logo death-fx hidden">DEAD</div>
+        </div>
+        <svg class="modern-svg stroke-lightgreen svg-idle" viewBox="0 0 24 24" draggable="false">
+            <path d="M12 22 C12 14, 15 8, 20 4"></path>
+            <path d="M10 22 C10 16, 6 10, 2 8"></path>
+            <path d="M14 22 C14 15, 18 10, 22 10"></path>
+            <path d="M8 22 C8 15, 4 12, 2 14"></path>
+            <path d="M12 22 C12 18, 10 14, 10 10"></path>
+        </svg>
+        <svg class="modern-svg stroke-red svg-hurt hidden" viewBox="0 0 24 24" draggable="false">
+            <path d="M12 22 C12 18, 15 14, 18 15"></path>
+            <path d="M10 22 C10 18, 6 15, 4 17"></path>
+            <path d="M14 22 C14 18, 16 16, 19 18"></path>
+            <path d="M8 22 C8 18, 5 18, 3 20"></path>
+            <path d="M16 12 L18 10 M5 12 L3 10"></path>
+        </svg>
+        <svg class="modern-svg stroke-gray svg-death hidden" viewBox="0 0 24 24" draggable="false">
+            <path d="M2 21 C6 20, 10 21, 14 22 M10 21 C14 20, 18 20, 22 21"></path>
+            <path d="M5 21 L3 19 M12 22 L10 19 M19 21 L21 19"></path>
+        </svg>
+    </div>
+</template>
+
+<template id="template-water">
+    <div class="game-object dynamic-object" draggable="false">
+        <div class="floating-ui">
+            <div class="event-logo splash-fx hidden" style="color: #60a5fa; text-shadow: 0 0 10px #60a5fa;">💧 SPLASH!</div>
+        </div>
+        <svg class="modern-svg stroke-blue" viewBox="0 0 24 24" draggable="false">
+            <path d="M3 13 C6 10, 10 16, 14 13 C17 11, 20 14, 22 12"></path>
+            <path d="M2 18 C6 15, 11 21, 15 18 C18 16, 20 18, 22 17"></path>
+            <circle cx="11" cy="6" r="1.5"></circle>
+            <path d="M11 4.5 L11 2.5"></path>
+            <circle cx="16" cy="7" r="0.8"></circle>
+        </svg>
+    </div>
+</template>
+
+<template id="template-chest">
+    <div class="game-object dynamic-object" draggable="false">
+        <div class="floating-ui">
+            <div class="input-logo visual-hint chest-hint hidden">PRESS SPACE</div>
+            <div class="event-logo loot-fx hidden" style="color: #fbbf24; text-shadow: 0 0 10px #fbbf24;">✨ LOOT!</div>
+        </div>
+        <svg class="modern-svg stroke-gold chest-closed" viewBox="0 0 24 24" draggable="false">
+            <rect x="3" y="10" width="18" height="10" rx="2"></rect>
+            <path d="M3 10 C3 4, 21 4, 21 10 Z"></path>
+            <path d="M8 10 L8 20 M16 10 L16 20"></path>
+            <path d="M8 4 L8 10 M16 4 L16 10" stroke-dasharray="2 1"></path>
+            <rect x="11" y="8" width="2" height="4" rx="0.5"></rect>
+            <circle cx="12" cy="10" r="0.5" fill="#fbbf24"></circle>
+        </svg>
+        <svg class="modern-svg stroke-gold chest-open hidden" viewBox="0 0 24 24" draggable="false">
+            <rect x="3" y="13" width="18" height="7" rx="2"></rect>
+            <path d="M3 13 L5 4 C9 2, 15 2, 19 4 L21 13"></path>
+            <path d="M8 13 L8 20 M16 13 L16 20"></path>
+            <path d="M12 11 L12 6 M9 11 L6 8 M15 11 L18 8" stroke-dasharray="2 2"></path>
+            <circle cx="10" cy="12" r="1.5"></circle>
+            <circle cx="14" cy="12" r="1.5"></circle>
+            <circle cx="12" cy="14" r="1.5"></circle>
+        </svg>
+    </div>
+</template>

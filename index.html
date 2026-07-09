@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyScript: Modern Survival Multi-Object V2</title>
+    <title>PyScript: Modern Survival Clean Code</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.3.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.3.1/core.js"></script>
@@ -11,104 +11,15 @@
 <body>
 
     <div id="game-area">
-        
-        <div id="player" class="game-object" draggable="false">
-            <div class="floating-ui">
-                <div class="input-logo">W A S D / SPACE</div>
-            </div>
-            <svg id="player-idle" class="modern-svg stroke-yellow" viewBox="0 0 24 24" draggable="false">
-                <circle cx="12" cy="12" r="9"></circle>
-                <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            <svg id="player-attack" class="modern-svg stroke-yellow hidden" viewBox="0 0 24 24" draggable="false">
-                <circle cx="12" cy="12" r="9"></circle>
-                <path d="M12 12 l8 -5 M12 12 l8 5"></path>
-            </svg>
-        </div>
-
+        <div id="player" class="game-object" draggable="false"></div>
     </div>
-
-    <template id="template-tree">
-        <div class="game-object dynamic-object" draggable="false">
-            <div class="floating-ui" style="top: -90px;"> 
-                <div class="hp-bar"><div class="hp-fill"></div></div>
-                <div class="event-logo hurt-fx hidden">-35</div>
-                <div class="event-logo death-fx hidden">DEAD</div>
-            </div>
-            <svg class="modern-svg large-svg stroke-green svg-idle" viewBox="0 0 24 24" draggable="false">
-                <path d="M12 22 v-9"></path>
-                <path d="M12 18 l-3 -3 M12 15 l4 -2"></path>
-                <path d="M12 13 C 2 13, 2 2, 12 2 C 22 2, 22 13, 12 13 Z"></path>
-                <path d="M12 10 C 6 10, 6 4, 12 4 C 18 4, 18 10, 12 10 Z"></path>
-            </svg>
-            <svg class="modern-svg large-svg stroke-red svg-hurt hidden" viewBox="0 0 24 24" draggable="false">
-                <path d="M12 22 l-2 -9"></path>
-                <path d="M10 18 l-2 -3 M10 15 l4 -2"></path>
-                <path d="M10 13 C 0 13, 0 2, 10 2 C 20 2, 20 13, 10 13 Z"></path>
-            </svg>
-            <svg class="modern-svg large-svg stroke-gray svg-death hidden" viewBox="0 0 24 24" draggable="false">
-                <path d="M10 22 v-5 m4 5 v-3 M8 17 h8"></path>
-                <path d="M6 21 l2 -2 M16 20 l2 -1"></path>
-            </svg>
-        </div>
-    </template>
-
-    <template id="template-grass">
-        <div class="game-object dynamic-object" draggable="false">
-            <div class="floating-ui">
-                <div class="hp-bar"><div class="hp-fill"></div></div>
-                <div class="event-logo hurt-fx hidden">-35</div>
-                <div class="event-logo death-fx hidden">DEAD</div>
-            </div>
-            <svg class="modern-svg stroke-lightgreen svg-idle" viewBox="0 0 24 24" draggable="false">
-                <path d="M4 22 Q4 14 1 8 M8 22 Q8 12 5 5 M12 22 v-18 M16 22 Q16 12 19 5 M20 22 Q20 14 23 8"></path>
-            </svg>
-            <svg class="modern-svg stroke-red svg-hurt hidden" viewBox="0 0 24 24" draggable="false">
-                <path d="M4 22 Q8 16 2 12 M8 22 Q12 14 6 9 M12 22 Q15 12 9 6 M16 22 Q19 14 13 9 M20 22 Q23 16 17 12"></path>
-            </svg>
-            <svg class="modern-svg stroke-gray svg-death hidden" viewBox="0 0 24 24" draggable="false">
-                <path d="M3 21 h18 M5 21 v-2 M10 21 v-3 M14 21 v-2 M19 21 v-1"></path>
-            </svg>
-        </div>
-    </template>
-
-    <template id="template-water">
-        <div class="game-object dynamic-object" draggable="false">
-            <div class="floating-ui">
-                <div class="event-logo splash-fx hidden" style="color: #60a5fa; text-shadow: 0 0 10px #60a5fa;">💧 SPLASH!</div>
-            </div>
-            <svg class="modern-svg stroke-blue" viewBox="0 0 24 24" draggable="false">
-                <ellipse cx="12" cy="18" rx="8" ry="3"></ellipse>
-                <ellipse cx="12" cy="18" rx="5" ry="1.5"></ellipse>
-            </svg>
-        </div>
-    </template>
-
-    <template id="template-chest">
-        <div class="game-object dynamic-object" draggable="false">
-            <div class="floating-ui">
-                <div class="input-logo visual-hint chest-hint hidden">PRESS SPACE</div>
-                <div class="event-logo loot-fx hidden" style="color: #fbbf24; text-shadow: 0 0 10px #fbbf24;">✨ LOOT!</div>
-            </div>
-            <svg class="modern-svg stroke-gold chest-closed" viewBox="0 0 24 24" draggable="false">
-                <rect x="4" y="11" width="16" height="9" rx="1"></rect>
-                <path d="M4 11 C 4 5, 20 5, 20 11"></path>
-                <rect x="11" y="9" width="2" height="4"></rect>
-            </svg>
-            <svg class="modern-svg stroke-gold chest-open hidden" viewBox="0 0 24 24" draggable="false">
-                <rect x="4" y="14" width="16" height="6" rx="1"></rect>
-                <path d="M4 14 C 4 8, 20 8, 20 14" stroke-dasharray="2 2"></path>
-                <path d="M4 6 C 4 1, 20 1, 20 6"></path>
-                <circle cx="12" cy="11" r="2"></circle>
-                <path d="M8 10 l1 -1 M16 10 l-1 -1"></path>
-            </svg>
-        </div>
-    </template>
 
     <div class="top-right-ui">
         <button id="restock-btn" class="global-btn">📦 RESTOCK LOOT CHEST</button>
         <button id="reset-btn" class="global-btn hidden">↻ REVIVE ALL</button>
     </div>
+
+    <div id="svg-assets" style="display: none;"></div>
 
     <script type="py" src="./main.py"></script>
 

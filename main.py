@@ -5,40 +5,44 @@ from pyscript import document
 from pyodide.ffi import create_proxy
 from js import window
 
-# Player Elements & Settings
-player = document.getElementById('player')
-player_idle_svg = document.getElementById('player-idle')
-player_attack_svg = document.getElementById('player-attack')
-reset_btn = document.getElementById('reset-btn')
-restock_btn = document.getElementById('restock-btn')
+# ==========================================
+# 1. VARIABEL GLOBAL (STATE GAME)
+# ==========================================
+player = None
+player_idle_svg = None
+player_attack_svg = None
+reset_btn = None
+restock_btn = None
 
 player_pos = {"x": 200, "y": 300}
 is_attacking = False
 keys_pressed = set()
 move_speed = 6 
 
-# Arrays untuk Multi-Object (Max: 5 per jenis objek)
 active_trees = []
 active_grasses = []
 active_waters = []
 active_chests = []
-
 id_counter = 0
 
-# --------------------------------------------------
-# FUNGSI SPAWN OBJEK SECARA DINAMIS
-# --------------------------------------------------
+drag_target = None
+drag_offset = {"x": 0, "y": 0}
+
+
+# ==========================================
+# 2. LOGIKA PERMAINAN (FUNGSI UTAMA)
+# ==========================================
 def spawn_object(item_type):
     global id_counter
     id_counter += 1
     unique_id = f"obj-{item_type}-{id_counter}"
     
+    # Kloning SVG dari wadah template tersembunyi
     template = document.getElementById(f"template-{item_type}")
     clone = template.content.cloneNode(True)
     el = clone.querySelector(".game-object")
     el.id = unique_id
     
-    # Menentukan acak koordinat posisi objek di layar
     max_x = window.innerWidth - 150 if window.innerWidth > 300 else 800
     max_y = window.innerHeight - 150 if window.innerHeight > 300 else 600
     rx = random.randint(80, max(80, int(max_x)))
@@ -77,18 +81,15 @@ def spawn_object(item_type):
         })
         active_chests.append(item_data)
 
+
 def find_item_by_id(uid):
     for group in [active_trees, active_grasses, active_waters, active_chests]:
         for item in group:
             if item["id"] == uid: return item
     return None
 
-# --------------------------------------------------
-# INTERAKSI DRAG AND DROP HANDLER
-# --------------------------------------------------
-drag_target = None
-drag_offset = {"x": 0, "y": 0}
 
+# --- INTERAKSI DRAG & DROP ---
 def on_pointerdown(e):
     global drag_target, drag_offset
     el = e.target.closest('.game-object')
@@ -114,13 +115,8 @@ def on_pointerup(e):
         if el: el.style.zIndex = "10"
         drag_target = None
 
-document.addEventListener('pointerdown', create_proxy(on_pointerdown))
-document.addEventListener('pointermove', create_proxy(on_pointermove))
-document.addEventListener('pointerup', create_proxy(on_pointerup))
 
-# --------------------------------------------------
-# INPUT KONTROL & AKSI SPASI (ATTACK & COLLECT CHEST)
-# --------------------------------------------------
+# --- INTERAKSI KEYBOARD ---
 def on_keydown(e):
     key = e.key.lower()
     keys_pressed.add(key)
@@ -131,26 +127,22 @@ def on_keyup(e):
     key = e.key.lower()
     if key in keys_pressed: keys_pressed.remove(key)
 
-document.addEventListener('keydown', create_proxy(on_keydown))
-document.addEventListener('keyup', create_proxy(on_keyup))
 
+# --- SISTEM SERANGAN & KOLEKSI ---
 async def trigger_player_space_action():
     global is_attacking
     
-    # 1. Cek prioritas interaksi Chest (Collect Sekali Eksekusi)
     chest_collected = False
     for c in active_chests:
         if not c["is_opened"]:
             dist = math.sqrt((player_pos["x"] - c["x"])**2 + (player_pos["y"] - c["y"])**2)
             if dist < 70:
-                # Kunci status agar tidak bisa diambil berkali-kali (Bug Fix Infinite Loot)
                 c["is_opened"] = True
                 c["hint_ui"].classList.add('hidden')
                 c["svg_closed"].classList.add('hidden')
                 c["svg_open"].classList.remove('hidden')
                 c["event_ui"].classList.remove('hidden')
                 
-                # EVENT DESTROY CHEST: Efek open bertahan 2.5 detik lalu objek hilang total
                 async def destroy_chest_delayed(target_chest):
                     await asyncio.sleep(2.5)
                     if target_chest["el"] and target_chest["el"].parentNode:
@@ -162,13 +154,11 @@ async def trigger_player_space_action():
                 chest_collected = True
                 break
                 
-    # 2. Jika tidak membuka chest, jalankan aksi tebas pohon/rumput biasa
     if not chest_collected and not is_attacking:
         is_attacking = True
         player_idle_svg.classList.add('hidden')
         player_attack_svg.classList.remove('hidden')
         
-        # Serang Pohon Terdekat
         for t in active_trees:
             if t["is_dead"]: continue
             if math.sqrt((player_pos["x"] - t["x"])**2 + (player_pos["y"] - t["y"])**2) < 140:
@@ -179,7 +169,6 @@ async def trigger_player_space_action():
                 else:
                     handle_target_events(t, 'hurt')
                     
-        # Serang Rumput Terdekat
         for g in active_grasses:
             if g["is_dead"]: continue
             if math.sqrt((player_pos["x"] - g["x"])**2 + (player_pos["y"] - g["y"])**2) < 140:
@@ -222,7 +211,6 @@ def handle_target_events(t, event_type):
         t["ui_death"].classList.remove('hidden')
         reset_btn.classList.remove('hidden')
         
-        # EVENT OBJECT DEAD DISAPPEAR: Gambar DEAD bertahan 3 detik lalu objek hilang total
         async def destroy_object_delayed(target_obj):
             await asyncio.sleep(3.0)
             if target_obj["el"] and target_obj["el"].parentNode:
@@ -231,9 +219,28 @@ def handle_target_events(t, event_type):
             elif target_obj in active_grasses: active_grasses.remove(target_obj)
         asyncio.create_task(destroy_object_delayed(t))
 
-# --------------------------------------------------
-# SYSTEM GAME LOOP (RENDER ENGINE & PROXIMITY DETECTION)
-# --------------------------------------------------
+
+# --- FUNGSI RESET MANUAL ---
+def manual_restock_chests(e):
+    while len(active_chests) < 5:
+        spawn_object("chest")
+
+def manual_revive_all_game(e):
+    while len(active_trees) < 5: spawn_object("tree")
+    while len(active_grasses) < 5: spawn_object("grass")
+    
+    for t in active_trees:
+        t["hp"] = 100
+        t["ui_fill"].style.width = "100%"
+    for g in active_grasses:
+        g["hp"] = 100
+        g["ui_fill"].style.width = "100%"
+        
+    manual_restock_chests(None)
+    reset_btn.classList.add('hidden')
+
+
+# --- GAME ENGINE LOOP ---
 async def game_loop():
     while True:
         if drag_target != 'player':
@@ -270,54 +277,58 @@ async def game_loop():
 
         await asyncio.sleep(0.016)
 
-# --------------------------------------------------
-# LOOP OTOMATIS: AUTO-SPAWN & AUTO-RESTOCK (DURASI LAMA)
-# --------------------------------------------------
+
 async def auto_spawn_and_restock_loop():
     while True:
-        # Pengecekan dilakukan berkala setiap 12 detik sekali
         await asyncio.sleep(12)
-        
-        # Mengisi kembali jika jumlah objek kurang dari maksimal masing-masing 5 objek
         if len(active_trees) < 5: spawn_object("tree")
         if len(active_grasses) < 5: spawn_object("grass")
         if len(active_waters) < 5: spawn_object("water")
         if len(active_chests) < 5: spawn_object("chest")
 
-# --------------------------------------------------
-# SYSTEM CONTROLLERS BUTTONS (MANUAL REPLENISH)
-# --------------------------------------------------
-def manual_restock_chests(e):
-    # Mengisi ulang Chest yang hilang secara instan hingga jumlahnya kembali penuh 5 objek
-    while len(active_chests) < 5:
+
+# ==========================================
+# 3. FUNGSI LOADING & INITIALIZER
+# ==========================================
+async def init_game():
+    global player, player_idle_svg, player_attack_svg, reset_btn, restock_btn
+    
+    # --- PROSES PENGAMBILAN SVG EKSTERNAL ---
+    response = await window.fetch("svgs.html")
+    html_data = await response.text()
+    
+    # Suntikkan template ke wadah tersembunyi
+    document.getElementById("svg-assets").innerHTML = html_data
+    # Suntikkan SVG Player ke tempat utamanya
+    document.getElementById("player").innerHTML = document.getElementById("player-assets").innerHTML
+    
+    # --- MENGIKAT ELEMEN HTML KE VARIABEL ---
+    player = document.getElementById('player')
+    player_idle_svg = document.getElementById('player-idle')
+    player_attack_svg = document.getElementById('player-attack')
+    reset_btn = document.getElementById('reset-btn')
+    restock_btn = document.getElementById('restock-btn')
+    
+    # --- MEMASANG EVENT LISTENER MOUSE & KEYBOARD ---
+    document.addEventListener('pointerdown', create_proxy(on_pointerdown))
+    document.addEventListener('pointermove', create_proxy(on_pointermove))
+    document.addEventListener('pointerup', create_proxy(on_pointerup))
+    document.addEventListener('keydown', create_proxy(on_keydown))
+    document.addEventListener('keyup', create_proxy(on_keyup))
+    restock_btn.addEventListener('click', create_proxy(manual_restock_chests))
+    reset_btn.addEventListener('click', create_proxy(manual_revive_all_game))
+    
+    # --- MEMULAI SPAWN PERTAMA ---
+    for _ in range(2):
+        spawn_object("tree")
+        spawn_object("grass")
+        spawn_object("water")
         spawn_object("chest")
 
-def manual_revive_all_game(e):
-    # Mengisi ulang Pohon dan Rumput yang hancur hingga jumlahnya kembali penuh 5 objek
-    while len(active_trees) < 5: spawn_object("tree")
-    while len(active_grasses) < 5: spawn_object("grass")
-    
-    # Pulihkan HP untuk objek yang tersisa di layar (jika ada yang terluka)
-    for t in active_trees:
-        t["hp"] = 100
-        t["ui_fill"].style.width = "100%"
-    for g in active_grasses:
-        g["hp"] = 100
-        g["ui_fill"].style.width = "100%"
-        
-    manual_restock_chests(None)
-    reset_btn.classList.add('hidden')
+    # --- MENJALANKAN MESIN GAME ---
+    asyncio.create_task(game_loop())
+    asyncio.create_task(auto_spawn_and_restock_loop())
 
-restock_btn.addEventListener('click', create_proxy(manual_restock_chests))
-reset_btn.addEventListener('click', create_proxy(manual_revive_all_game))
 
-# Pemanggilan Awal saat Game Dimulai (Membuat 2 buah objek instan untuk memulai petualangan)
-for _ in range(2):
-    spawn_object("tree")
-    spawn_object("grass")
-    spawn_object("water")
-    spawn_object("chest")
-
-# Menjalankan seluruh asynchronous task game engine
-asyncio.create_task(game_loop())
-asyncio.create_task(auto_spawn_and_restock_loop())
+# Pemicu Eksekusi Paling Awal
+asyncio.create_task(init_game())
